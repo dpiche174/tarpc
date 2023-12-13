@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+# This script performs checks on the Rust code and runs the tests.
+# It is a conveniant way of validating change before commiting them to the repo.
+
+# Check if machete and nextest are installed.
+if ! cargo machete --help &> /dev/null; then
+    echo 'Error: picky uses cargo machete. Install with `cargo install cargo-machete --locked`.'
+    exit 1
+fi
+
+if ! cargo nextest --version &> /dev/null; then
+    echo 'Error: picky uses cargo nextest. Install with `cargo install cargo-nextest --locked`.'
+    exit 1
+fi
+
+# clean only if option `-c` was specified.
+if [ "$1" = "-c" ]; then
+    cargo clean
+fi
+cargo machete --skip-target-dir
+cargo fmt --verbose --all -- --check
+cargo clippy --verbose --all-features -- -D warnings
+cargo nextest run --verbose --all-features --workspace

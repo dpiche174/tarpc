@@ -182,6 +182,7 @@ where
         })
     }
 
+    #[allow(clippy::arc_with_non_send_sync)]
     fn increment_channels_for_key(self: Pin<&mut Self>, key: K) -> Result<Arc<Tracker<K>>, K> {
         let self_ = self.project();
         let dropped_keys = self_.dropped_keys_tx;

@@ -9,7 +9,6 @@ use crate::{
     double::Double as DoubleService,
 };
 use futures::{future, prelude::*};
-use opentelemetry::trace::TracerProvider as _;
 use std::{
     io,
     sync::{
@@ -90,13 +89,11 @@ pub fn init_tracing(service_name: &'static str) -> anyhow::Result<()> {
             )]),
         ))
         .install_batch(opentelemetry_sdk::runtime::Tokio)?;
-    opentelemetry::global::set_tracer_provider(tracer_provider.clone());
-    let tracer = tracer_provider.tracer(service_name);
 
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::from_default_env())
         .with(tracing_subscriber::fmt::layer())
-        .with(tracing_opentelemetry::layer().with_tracer(tracer))
+        .with(tracing_opentelemetry::layer().with_tracer(tracer_provider))
         .try_init()?;
 
     Ok(())
@@ -118,6 +115,7 @@ where
     Ok((listener, addr))
 }
 
+#[allow(clippy::type_complexity)]
 fn make_stub<Req, Resp, const N: usize>(
     backends: [impl Transport<ClientMessage<Arc<Req>>, Response<Resp>> + Send + Sync + 'static; N],
 ) -> retry::Retry<

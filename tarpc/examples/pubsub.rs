@@ -38,7 +38,6 @@ use futures::{
     future::{self, AbortHandle},
     prelude::*,
 };
-use opentelemetry::trace::TracerProvider as _;
 use publisher::Publisher as _;
 use std::{
     collections::HashMap,
@@ -285,7 +284,7 @@ impl publisher::Publisher for Publisher {
 
 /// Initializes an OpenTelemetry tracing subscriber with a OTLP backend.
 pub fn init_tracing(service_name: &'static str) -> anyhow::Result<()> {
-    let tracer_provider = opentelemetry_otlp::new_pipeline()
+    let tracer = opentelemetry_otlp::new_pipeline()
         .tracing()
         .with_batch_config(opentelemetry_sdk::trace::BatchConfig::default())
         .with_exporter(opentelemetry_otlp::new_exporter().tonic())
@@ -296,8 +295,6 @@ pub fn init_tracing(service_name: &'static str) -> anyhow::Result<()> {
             )]),
         ))
         .install_batch(opentelemetry_sdk::runtime::Tokio)?;
-    opentelemetry::global::set_tracer_provider(tracer_provider.clone());
-    let tracer = tracer_provider.tracer(service_name);
 
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::from_default_env())

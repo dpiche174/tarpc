@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Copyright (C) 2019-2024 Motorola Solutions, Inc. All rights reserved.
+
+# Picky version 4.0
+set -e
+
+# Check if cargo make is installed.
+if ! cargo make --help &> /dev/null; then
+    echo 'Error: picky uses cargo make. Install with `cargo install cargo-make`.'
+    exit 1
+fi
+
+cargo make picky

@@ -5,3 +5,10 @@ Cargo.lock
 *.bk
 tarpc.iml
 .idea
+
+# IDE - Visual Studio Code
+*.code-workspace
+.vscode/
+
+# Local development
+.envrc

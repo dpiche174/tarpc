@@ -1,0 +1,52 @@
+[tasks.machete]
+workspace = false
+command = "cargo"
+args = ["machete"]
+
+[tasks.format]
+workspace = false
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt", "--verbose", "--all", "--", "--check"]
+
+[tasks.clippy]
+workspace = false
+command = "cargo"
+args = [
+    "clippy",
+    "--verbose",
+    "--workspace",
+    "--all-targets",
+    "--",
+    "-D",
+    "warnings",
+]
+
+[tasks.test]
+workspace = false
+env = { "RUST_TEST_THREADS" = { script = ["echo ${RUST_TEST_THREADS:-1}"] } }
+command = "cargo"
+args = [
+    "nextest",
+    "run",
+    "--verbose",
+    "--workspace",
+    "--lib",
+    "--bins",
+    "--tests",
+    "--examples",
+    "--test-threads",
+    "${RUST_TEST_THREADS}",
+    "--retries",
+    "5",
+    "--no-fail-fast",
+]
+
+[tasks.picky]
+clear = true
+workspace = false
+dependencies = ["machete", "format", "clippy", "test"]
+
+[tasks.default]
+clear = true
+alias = "picky"
